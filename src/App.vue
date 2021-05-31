@@ -4,6 +4,8 @@
     <div id="nav">
       <!--h2>Token : {{$auth.token}}</h2-->
       <router-link to="/">Home</router-link> |
+      <router-link to="/books">
+      Books</router-link> |
       <router-link to="/about">About</router-link> |
       <a href="javascript:void(0);" @click="$auth.logout">Log out</a>
     </div>
