@@ -14,11 +14,14 @@ import LoginForm from './LoginForm.vue';
 
 export default {
 
-  // const baseUrl = 'https://bibliob.us';
-
+  data() {
+    return {
+      baseUrl: 'https://bibliobus.local', // https://bibliob.us',
+    };
+  },
   methods: {
     login({ email, password }) {
-      this.$auth.baseUrl = 'https://bibliob.us'; // https://bibliobus.local
+      this.$auth.baseUrl = this.baseUrl;
       this.$auth.login(email, password);
     },
 
