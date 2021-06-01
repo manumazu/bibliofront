@@ -68,6 +68,7 @@ export default {
           // eslint-disable-next-line
           console.error(error);
           this.errored = true;
+          this.$auth.token = false;
         })
         .finally(() => { this.loading = false; });
     },

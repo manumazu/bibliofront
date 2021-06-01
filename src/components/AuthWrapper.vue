@@ -14,14 +14,8 @@ import LoginForm from './LoginForm.vue';
 
 export default {
 
-  data() {
-    return {
-      baseUrl: 'https://bibliobus.local', // https://bibliob.us',
-    };
-  },
   methods: {
     login({ email, password }) {
-      this.$auth.baseUrl = this.baseUrl;
       this.$auth.login(email, password);
     },
 

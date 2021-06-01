@@ -8,8 +8,18 @@ export default {
           user: null,
           token: null,
           errorMessage: '',
-          baseUrl: '',
+          baseUrl: 'https://bibliobus.local', // https://bibliob.us',
         };
+      },
+
+      // when token is false, force logout
+      watch: {
+        token(val) {
+          if (!val) {
+            this.errorMessage = 'Session is over. You must login.';
+            this.logout();
+          }
+        },
       },
 
       methods: {
