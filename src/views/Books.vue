@@ -11,32 +11,42 @@
               <section v-if="loading"><p>Chargement...</p></section>
               <section v-else>
                 <h1>Books in "{{ bookshelfName }}"</h1>
-                <hr><br><br>
+                <hr>
                 <button type="button" class="btn btn-success btn-sm">Add Book</button>
-                <br><br>
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th scope="col">Title</th>
-                      <th scope="col">Author</th>
-                      <th scope="col">Read?</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody v-for="(shelfs, index) in booksElem" :key="index">
-                    <tr v-for="(books, index) in shelfs" :key="index">
-                      <td>{{ books[1].title }}</td>
-                      <td>{{ books[1].author }}</td>
-                      <td>{{ books[1].borrowed }}</td>
-                      <td>
-                        <div class="btn-group" role="group">
-                          <button type="button" class="btn btn-warning btn-sm">Update</button>
-                          <button type="button" class="btn btn-danger btn-sm">Delete</button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+
+                <div>
+                  <b-tabs content-class="mt-3">
+                    <b-tab v-for="(shelfs, index) in booksElem" :key="index"
+                      :title="'Shelf '.concat(index)">
+
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Borrowed?</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(books, index) in shelfs" :key="index">
+                            <td>{{ books[1].title }}</td>
+                            <td>{{ books[1].author }}</td>
+                            <td v-if="books[1].borrowed == 1">Yes</td>
+                            <td v-else>No</td>
+                            <td>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-warning btn-sm">Update</button>
+                                <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                    </b-tab>
+                  </b-tabs>
+                </div>
               </section>
 
             </section>
