@@ -1,44 +1,46 @@
 <template>
   <div class="container" v-if="shelfId">
     <div class="row">
-      <div class="col-sm-15">
-        <section v-if="errored">
-          <p>Nous sommes désolés, ces informations ne sont pas disponibles pour le moment.
-          Veuillez réessayer ultérieurement.</p>
-        </section>
-        <section v-else>
-          <div v-if="loading">Chargement...</div>
+        <div class="col-sm-15">
+            <section v-if="errored">
+                <p>Nous sommes désolés, ces informations ne sont pas disponibles pour le moment.
+                Veuillez réessayer ultérieurement.</p>
+            </section>
+            <section v-else>
 
-          <h1>Books in "{{ bookshelfName }}"</h1>
-          <hr><br><br>
-          <button type="button" class="btn btn-success btn-sm">Add Book</button>
-          <br><br>
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th scope="col">Title</th>
-                <th scope="col">Author</th>
-                <th scope="col">Read?</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>foo</td>
-                <td>bar</td>
-                <td>foobar</td>
-                <td>
-                  <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-warning btn-sm">Update</button>
-                    <button type="button" class="btn btn-danger btn-sm">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              <section v-if="loading"><p>Chargement...</p></section>
+              <section v-else>
+                <h1>Books in "{{ bookshelfName }}"</h1>
+                <hr><br><br>
+                <button type="button" class="btn btn-success btn-sm">Add Book</button>
+                <br><br>
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">Title</th>
+                      <th scope="col">Author</th>
+                      <th scope="col">Read?</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody v-for="(shelfs, index) in booksElem" :key="index">
+                    <tr v-for="(books, index) in shelfs" :key="index">
+                      <td>{{ books[1].title }}</td>
+                      <td>{{ books[1].author }}</td>
+                      <td>{{ books[1].borrowed }}</td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <button type="button" class="btn btn-warning btn-sm">Update</button>
+                          <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
 
-        </section>
-      </div>
+            </section>
+        </div>
     </div>
   </div>
 </template>
@@ -49,28 +51,39 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      shelfId: null,
-      bookshelfName: '',
+      shelfId: 'toto',
+      bookshelfName: null,
+      booksElem: [],
       loading: true,
       errored: false,
     };
   },
   methods: {
     getListBooks(shelfId) {
-      this.shelfId = shelfId;
-      const path = this.$auth.baseUrl.concat('/api/bookshelf?token=').concat(this.$auth.token).concat('&uuid=').concat(shelfId);
-      axios.get(path)
-        .then((res) => {
-          console.log(res.data.arduino_map.arduino_name);
-          this.bookshelfName = res.data.arduino_map.arduino_name;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.error(error);
-          this.errored = true;
-          this.$auth.token = false;
-        })
-        .finally(() => { this.loading = false; });
+      if (shelfId === undefined) {
+        // force redirect to shelf selector
+        this.$router.push('/');
+      } else {
+        const path = this.$auth.baseUrl.concat('/api/bookshelf?token=').concat(this.$auth.token).concat('&uuid=').concat(shelfId);
+        axios.get(path)
+          .then((res) => {
+            // console.log(res.data.shelfInfos);
+            this.bookshelfName = res.data.shelfInfos.arduino_name;
+            this.booksElem = res.data.storedBooks;
+            this.shelfId = shelfId;
+            // console.log(this.booksElem[1][0][1].author);
+          })
+          .catch((error) => {
+            console.error(error);
+            this.errored = true;
+            // set auth token to false force to load login form
+            this.$auth.token = false;
+          })
+          .finally(() => {
+            this.loading = false;
+            // console.log(this.shelfId);
+          });
+      }
     },
   },
   created() {
