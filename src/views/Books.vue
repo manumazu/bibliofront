@@ -28,7 +28,8 @@
                             <th></th>
                           </tr>
                         </thead>
-                        <tbody>
+
+                        <draggable :list="shelfs" :move="checkMove" tag="tbody">
                           <tr v-for="(books, index) in shelfs" :key="index">
                             <td>{{ books[1].title }}</td>
                             <td>{{ books[1].author }}</td>
@@ -41,7 +42,8 @@
                               </div>
                             </td>
                           </tr>
-                        </tbody>
+                        </draggable>
+
                       </table>
 
                     </b-tab>
@@ -57,16 +59,21 @@
 
 <script>
 import axios from 'axios';
+import draggable from 'vuedraggable';
 
 export default {
+  display: 'Table',
   data() {
     return {
-      shelfId: 'toto',
+      shelfId: '',
       bookshelfName: null,
       booksElem: [],
       loading: true,
       errored: false,
     };
+  },
+  components: {
+    draggable,
   },
   methods: {
     getListBooks(shelfId) {
@@ -94,6 +101,10 @@ export default {
             // console.log(this.shelfId);
           });
       }
+    },
+    checkMove(e) {
+      // window.console.log('Future index: '.concat(e.draggedContext.futureIndex));
+      console.log(JSON.stringify(e.draggedContext));
     },
   },
   created() {
