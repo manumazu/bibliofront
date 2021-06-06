@@ -8,7 +8,7 @@ export default {
           user: null,
           token: null,
           errorMessage: '',
-          baseUrl: 'https://bibliobus.local', // 'https://bibliob.us', //
+          baseUrl: 'https://bibliob.us', // 'https://bibliobus.local', //
         };
       },
 
