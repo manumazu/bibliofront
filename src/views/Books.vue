@@ -12,7 +12,7 @@
               <h1>Books in "{{ bookshelfName }}"</h1>
               <hr>
               <button type="button" class="btn btn-success btn-sm">Add Book</button>
-              <DraggableList :elements="booksElem" />
+              <DraggableList :elements="booksElem" :shelfId="shelfId" />
             </section>
         </div>
     </div>

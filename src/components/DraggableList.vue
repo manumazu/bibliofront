@@ -1,5 +1,5 @@
 <template>
-  <b-tabs content-class="mt-3">
+  <b-tabs content-class="mt-3" v-model="tabIndex">
     <b-tab v-for="(shelfs, index) in elements" :key="index"
       :title="'Shelf '.concat(index)">
 
@@ -13,8 +13,13 @@
           </tr>
         </thead>
 
-        <draggable :list="shelfs" :move="checkMove" tag="tbody">
-          <tr v-for="(books, index) in shelfs" :key="index">
+        <draggable
+        :list="shelfs"
+        :move="checkMove"
+        @end="saveOrder"
+        ghost-class="ghost"
+        tag="tbody">
+          <tr v-for="(books, index2) in shelfs" :key="index2">
             <td>{{ books[1].title }}</td>
             <td>{{ books[1].author }}</td>
             <td v-if="books[1].borrowed == 1">Yes</td>
@@ -35,6 +40,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import draggable from 'vuedraggable';
 
 export default {
@@ -46,6 +52,15 @@ export default {
         return {};
       },
     },
+    shelfId: {
+      type: String,
+      default: '',
+    },
+  },
+  data() {
+    return {
+      tabIndex: null,
+    };
   },
   components: {
     draggable,
@@ -54,6 +69,22 @@ export default {
     checkMove(e) {
       // window.console.log('Future index: '.concat(e.draggedContext.futureIndex));
       console.log(JSON.stringify(e.draggedContext));
+    },
+    saveOrder() {
+      const currentShelf = (this.tabIndex + 1);
+      const newList = this.elements[currentShelf];
+      const bookIds = [];
+      newList.forEach((item) => {
+        bookIds.push(item[0]);
+      });
+      console.log(bookIds);
+      axios.post(this.$auth.baseUrl.concat('/api/sort'), {
+        book_ids: bookIds,
+        row: currentShelf,
+        token: this.$auth.token,
+        uuid: this.shelfId,
+      });
+      // console.log(JSON.stringify(this.elements[currentShelf]));
     },
   },
 };
