@@ -3,6 +3,12 @@
     <b-tab v-for="(shelfs, index) in elements" :key="index"
       :title="'Shelf '.concat(index)">
 
+      <button v-if="showButton"
+      type="button"
+      class="btn btn-sm"
+      :class="classBtnSave"
+      @click="saveOrder">Save order</button>
+
       <table class="table table-hover">
         <thead>
           <tr>
@@ -16,7 +22,7 @@
         <draggable
         :list="shelfs"
         :move="checkMove"
-        @end="saveOrder"
+        @end="displayButtonSave"
         ghost-class="ghost"
         tag="tbody">
           <tr v-for="(books, index2) in shelfs" :key="index2">
@@ -60,6 +66,8 @@ export default {
   data() {
     return {
       tabIndex: null,
+      showButton: false,
+      classBtnSave: 'btn-warning',
     };
   },
   components: {
@@ -70,20 +78,32 @@ export default {
       // window.console.log('Future index: '.concat(e.draggedContext.futureIndex));
       console.log(JSON.stringify(e.draggedContext));
     },
+    displayButtonSave() {
+      this.showButton = true;
+      this.classBtnSave = 'btn-warning';
+    },
     saveOrder() {
       const currentShelf = (this.tabIndex + 1);
       const newList = this.elements[currentShelf];
       const bookIds = [];
       newList.forEach((item) => {
-        bookIds.push(item[0]);
+        bookIds.push(item[1].id);
       });
-      console.log(bookIds);
+      // console.log(bookIds);
       axios.post(this.$auth.baseUrl.concat('/api/sort'), {
         book_ids: bookIds,
         row: currentShelf,
         token: this.$auth.token,
         uuid: this.shelfId,
-      });
+      })
+        .then(() => {
+          this.classBtnSave = 'btn-success';
+          setTimeout(() => { this.showButton = false; }, 1000); // hide button save
+        })
+        .catch((error) => {
+          console.error(error);
+          this.classBtnSave = 'btn-danger';
+        });
       // console.log(JSON.stringify(this.elements[currentShelf]));
     },
   },
