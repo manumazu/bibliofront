@@ -11,11 +11,54 @@
             <section v-else>
               <h1>Books in "{{ bookshelfName }}"</h1>
               <hr>
-              <button type="button" class="btn btn-success btn-sm">Add Book</button>
+              <button type="button"
+                class="btn btn-success btn-sm"
+                v-b-modal.book-modal>Add Book</button>
+
               <DraggableList :elements="booksElem" :shelfId="shelfId" />
+
             </section>
         </div>
     </div>
+
+    <b-modal ref="addBookModal"
+             id="book-modal"
+             title="Add a new book"
+             hide-backdrop content-class="shadow"
+             hide-footer>
+      <template>
+      <b-form @submit="onSubmit" @reset="onReset">
+      <b-form-group id="form-title-group"
+                    label="Title:"
+                    label-for="form-title-input">
+          <b-form-input id="form-title-input"
+                        type="text"
+                        v-model="addBookForm.title"
+                        required
+                        placeholder="Enter title">
+          </b-form-input>
+        </b-form-group>
+        <b-form-group id="form-author-group"
+                      label="Author:"
+                      label-for="form-author-input">
+            <b-form-input id="form-author-input"
+                          type="text"
+                          v-model="addBookForm.author"
+                          required
+                          placeholder="Enter author">
+            </b-form-input>
+          </b-form-group>
+        <b-form-group id="form-read-group">
+          <b-form-checkbox-group v-model="addBookForm.read" id="form-checks">
+            <b-form-checkbox value="true">Read?</b-form-checkbox>
+          </b-form-checkbox-group>
+        </b-form-group>
+        <b-button type="submit" variant="primary">Submit</b-button>
+        <b-button type="reset" variant="danger">Reset</b-button>
+      </b-form>
+      </template>
+    </b-modal>
+
   </div>
 </template>
 
@@ -31,6 +74,11 @@ export default {
       booksElem: [],
       loading: true,
       errored: false,
+      addBookForm: {
+        title: '',
+        author: '',
+        read: [],
+      },
     };
   },
   components: { DraggableList },
@@ -60,6 +108,13 @@ export default {
           });
       }
     },
+    initForm() {
+      this.addBookForm.title = '';
+      this.addBookForm.author = '';
+      this.addBookForm.read = [];
+    },
+    onSubmit() {},
+    onReset() {},
   },
   created() {
     // console.log(this.$route.params.shelf);
