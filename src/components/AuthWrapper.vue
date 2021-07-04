@@ -3,7 +3,7 @@
     <div v-if="$auth.user">
       <App />
     </div>
-    <LoginForm v-else :errorMessage="$auth.errorMessage" @submit="login" />
+    <LoginForm v-else :errorMessage="$auth.errorMessage" @auth="login" />
   </div>
 </template>
 

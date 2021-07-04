@@ -113,12 +113,29 @@ export default {
       this.addBookForm.author = '';
       this.addBookForm.read = [];
     },
-    onSubmit() {},
+    onSubmit(event) {
+      event.preventDefault();
+      this.$refs.addBookModal.hide();
+      let read = false;
+      if (this.addBookForm.read[0]) read = true;
+      const payload = {
+        title: this.addBookForm.title,
+        author: this.addBookForm.author,
+        search_api: 'googleapis',
+        read, // property shorthand
+      };
+      this.searchBook(payload);
+    },
+    searchBook(payload) {
+      const path = this.$auth.baseUrl.concat('/api/booksearch/?token=').concat(this.$auth.token).concat('&uuid=').concat(this.shelfId);
+      axios.post(path, payload);
+      console.log(payload);
+    },
     onReset() {},
   },
   created() {
     // console.log(this.$route.params.shelf);
-    console.log(this.loading);
+    // console.log(this.loading);
     this.loading = true;
     this.getListBooks(this.$route.params.shelfId);
   },

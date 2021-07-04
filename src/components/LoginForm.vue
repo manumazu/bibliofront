@@ -36,7 +36,7 @@ export default {
 
   methods: {
     submit() {
-      this.$emit('submit', {
+      this.$emit('auth', {
         email: this.email,
         password: this.password,
       });
