@@ -12,10 +12,10 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th scope="col">Title</th>
-            <th scope="col">Author</th>
-            <th scope="col">Borrowed?</th>
-            <th></th>
+            <th scope="col" style="width: 25%">Title</th>
+            <th scope="col" style="width: 25%">Author</th>
+            <th scope="col" style="width: 25%">Borrowed?</th>
+            <th style="width: 25%"></th>
           </tr>
         </thead>
 
@@ -24,18 +24,24 @@
         :move="checkMove"
         @end="displayButtonSave"
         ghost-class="ghost"
-        tag="tbody">
+        tag="tbody"
+        handle=".handle">
           <tr v-for="(books, index2) in shelfs" :key="index2">
-            <td>{{ books[1].title }}</td>
-            <td>{{ books[1].author }}</td>
-            <td v-if="books[1].borrowed == 1">Yes</td>
-            <td v-else>No</td>
-            <td>
-              <div class="btn-group" role="group">
-                <button type="button" class="btn btn-warning btn-sm">Update</button>
-                <button type="button" class="btn btn-danger btn-sm">Delete</button>
-              </div>
+            <td v-if="books[1].title" colspan="4" class="book-content">
+              <tr class="handle">
+                <td style="width: 25%">{{ books[1].title }}</td>
+                <td style="width: 25%">{{ books[1].author }}</td>
+                <td style="width: 25%" v-if="books[1].borrowed == 1">Yes</td>
+                <td style="width: 25%" v-else>No</td>
+                <td style="width: 25%">
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-warning btn-sm">Update</button>
+                    <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                  </div>
+                </td>
+              </tr>
             </td>
+            <td v-else colspan="4" class="separator"></td>
           </tr>
         </draggable>
 
@@ -87,7 +93,9 @@ export default {
       const newList = this.elements[currentShelf];
       const bookIds = [];
       newList.forEach((item) => {
-        bookIds.push(item[1].id);
+        if (item[1].id !== null) {
+          bookIds.push(item[1].id);
+        }
       });
       // console.log(bookIds);
       axios.post(this.$auth.baseUrl.concat('/api/sort'), {
@@ -109,3 +117,22 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.handle {
+  width: 100%;
+  display: inline-table;
+  border-style:hidden;
+  cursor: pointer;
+}
+.handle:hover {
+  background-color: transparent;
+}
+.book-content {
+  border:solid 1px lightgrey;
+}
+.separator {
+  background-color: lavender;
+  border:solid 1px lightgrey;
+}
+</style>
