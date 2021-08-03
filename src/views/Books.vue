@@ -15,7 +15,8 @@
                 class="btn btn-success btn-sm"
                 v-b-modal.book-modal>Add Book</button>
 
-              <DraggableList :elements="booksElem" :shelfId="shelfId" />
+              <DraggableList :elements="booksElem" :stats="statsBooks"
+                :shelfId="shelfId" :maxColsShelf="maxColsShelf" />
 
             </section>
         </div>
@@ -71,7 +72,9 @@ export default {
     return {
       shelfId: '',
       bookshelfName: null,
+      maxColsShelf: 0,
       booksElem: [],
+      statsBooks: [],
       loading: true,
       errored: false,
       addBookForm: {
@@ -93,7 +96,9 @@ export default {
           .then((res) => {
             // console.log(res.data.shelfInfos);
             this.bookshelfName = res.data.shelfInfos.arduino_name;
+            this.maxColsShelf = res.data.shelfInfos.nb_cols;
             this.booksElem = res.data.storedBooks;
+            this.statsBooks = res.data.statsBooks;
             this.shelfId = shelfId;
           })
           .catch((error) => {
