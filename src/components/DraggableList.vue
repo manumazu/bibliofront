@@ -5,8 +5,8 @@
 
       <div class="progress">
         <div id="shelf_progress_" class="progress-bar progress-bar-striped" role="progressbar"
-        style="width: 90%;" :aria-valuenow="progressValueReturned" aria-valuemin="0"
-        aria-valuemax="100">Fulfillment 90%</div>
+        :style="progressValueWidth" :aria-valuenow="progressValueReturned" aria-valuemin="0"
+        aria-valuemax="100">Fulfillment {{progressValueReturned}}%</div>
       </div>
 
       <button v-if="showButton"
@@ -91,24 +91,26 @@ export default {
       showButton: false,
       classBtnSave: 'btn-warning',
       progressValue: 0,
-      progressValueWidth: null,
     };
   },
   computed: {
+    currentShelf() {
+      return this.tabIndex + 1;
+    },
     progressValueReturned: {
       get() {
         return (this.progressValue === 0)
-          ? this.stats[this.tabIndex + 1].positionRate : this.progressValue;
+          ? this.stats[this.currentShelf].positionRate : this.progressValue;
       },
       set(newValue) {
         this.progressValue = newValue;
       },
     },
-  },
-  watch: {
-    progressValueReturned() {
-      this.progressValueWidth = 'width:'.concat(this.progressValue).concat('%');
-      console.log(this.progressValueWidth);
+    progressValueWidth() {
+      if (this.progressValue === 0) {
+        return 'width:'.concat(this.stats[this.currentShelf].positionRate).concat('%');
+      }
+      return 'width:'.concat(this.progressValue).concat('%');
     },
   },
   components: {
@@ -118,14 +120,14 @@ export default {
     checkMove(e) {
       // window.console.log('Future index: '.concat(e.draggedContext.futureIndex));
       console.log(JSON.stringify(e.draggedContext));
+      console.log('progressValueWidth', this.progressValueWidth);
     },
     displayButtonSave() {
       this.showButton = true;
       this.classBtnSave = 'btn-warning';
     },
     saveOrder() {
-      const currentShelf = this.tabIndex + 1;
-      const newList = this.elements[currentShelf];
+      const newList = this.elements[this.currentShelf];
       const bookIds = [];
       newList.forEach((item) => {
         if (item[1].id !== null) {
@@ -135,24 +137,39 @@ export default {
       // console.log(bookIds);
       axios.post(this.$auth.baseUrl.concat('/api/sort'), {
         book_ids: bookIds,
-        row: currentShelf,
+        row: this.currentShelf,
         token: this.$auth.token,
         uuid: this.shelfId,
       })
         .then((result) => {
-          // console.log('maxColsShelf', this.maxColsShelf);
-          // console.log(JSON.stringify(result.data[result.data.length - 1].fulfillment));
-          this.progressValue = result.data[result.data.length - 1].fulfillment / this.maxColsShelf;
-          this.progressValueReturned = Math.round(this.progressValue) * 100;
-          console.log('progressValueReturned', this.progressValueReturned);
+          this.updateProgressBar(result);
           this.classBtnSave = 'btn-success';
+          console.error(result.status);
           setTimeout(() => { this.showButton = false; }, 1000); // hide button save
         })
         .catch((error) => {
           console.error(error);
+          console.log(JSON.stringify(error));
           this.classBtnSave = 'btn-danger';
         });
       // console.log(JSON.stringify(this.elements[currentShelf]));
+    },
+    updateProgressBar(result) {
+      // console.log('maxColsShelf', this.maxColsShelf);
+      this.progressValue = result.data[result.data.length - 1].fulfillment / this.maxColsShelf;
+      // adjust progress rate with statics element positions
+      /* let staticsRange = 0;
+      for (let i = 0; i < this.elements[this.currentShelf].length; i += 1) {
+        if (this.elements[this.currentShelf][i][1].item_type === 'static') {
+          staticsRange += this.elements[this.currentShelf][i][1].range;
+        }
+      }
+      const staticsElementRate = Math.round((staticsRange / this.maxColsShelf) * 100);
+      console.log('staticsElementRate', staticsElementRate);
+      // this.progressValue += staticsElementRate; */
+
+      this.progressValueReturned = Math.round(this.progressValue * 100);
+      console.log('progressValueReturned', this.progressValueReturned);
     },
   },
 };
