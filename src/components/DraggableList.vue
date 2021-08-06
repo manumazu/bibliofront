@@ -4,8 +4,9 @@
       :title="'Shelf '.concat(index)">
 
       <div class="progress">
-        <div id="shelf_progress_" class="progress-bar progress-bar-striped" role="progressbar"
-        :style="progressValueWidth" :aria-valuenow="progressValueReturned" aria-valuemin="0"
+        <div :id="'shelf_progress_'.concat(index)" class="progress-bar progress-bar-striped"
+        role="progressbar" aria-valuemin="0"
+        :style="progressValueWidth" :aria-valuenow="progressValueReturned"
         aria-valuemax="100">Fulfillment {{progressValueReturned}}%</div>
       </div>
 
@@ -90,7 +91,7 @@ export default {
       tabIndex: 0,
       showButton: false,
       classBtnSave: 'btn-warning',
-      progressValue: 0,
+      progressValue: [],
     };
   },
   computed: {
@@ -99,18 +100,18 @@ export default {
     },
     progressValueReturned: {
       get() {
-        return (this.progressValue === 0)
-          ? this.stats[this.currentShelf].positionRate : this.progressValue;
+        return (this.progressValue[this.currentShelf] === undefined)
+          ? this.stats[this.currentShelf].positionRate : this.progressValue[this.currentShelf];
       },
       set(newValue) {
-        this.progressValue = newValue;
+        this.progressValue[this.currentShelf] = newValue;
       },
     },
     progressValueWidth() {
-      if (this.progressValue === 0) {
+      if (this.progressValue[this.currentShelf] === undefined) {
         return 'width:'.concat(this.stats[this.currentShelf].positionRate).concat('%');
       }
-      return 'width:'.concat(this.progressValue).concat('%');
+      return 'width:'.concat(this.progressValue[this.currentShelf]).concat('%');
     },
   },
   components: {
@@ -144,19 +145,22 @@ export default {
         .then((result) => {
           this.updateProgressBar(result);
           this.classBtnSave = 'btn-success';
-          console.error(result.status);
           setTimeout(() => { this.showButton = false; }, 1000); // hide button save
         })
         .catch((error) => {
-          console.error(error);
-          console.log(JSON.stringify(error));
+          console.error(error.message);
           this.classBtnSave = 'btn-danger';
+          // set auth token to false force to load login form
+          this.$auth.token = false;
         });
       // console.log(JSON.stringify(this.elements[currentShelf]));
     },
     updateProgressBar(result) {
       // console.log('maxColsShelf', this.maxColsShelf);
-      this.progressValue = result.data[result.data.length - 1].fulfillment / this.maxColsShelf;
+      const fulfillement = result.data[result.data.length - 1].fulfillment;
+      this.progressValue[this.currentShelf] = fulfillement / this.maxColsShelf;
+      console.log('progressValue', JSON.stringify(this.progressValue));
+
       // adjust progress rate with statics element positions
       /* let staticsRange = 0;
       for (let i = 0; i < this.elements[this.currentShelf].length; i += 1) {
@@ -168,7 +172,7 @@ export default {
       console.log('staticsElementRate', staticsElementRate);
       // this.progressValue += staticsElementRate; */
 
-      this.progressValueReturned = Math.round(this.progressValue * 100);
+      this.progressValueReturned = Math.round(this.progressValue[this.currentShelf] * 100);
       console.log('progressValueReturned', this.progressValueReturned);
     },
   },
