@@ -4,10 +4,11 @@
       :title="'Shelf '.concat(index)">
 
       <div class="progress">
-        <div :id="'shelf_progress_'.concat(index)" class="progress-bar progress-bar-striped"
+        <div :id="'shelf_progress_'.concat(index)"
+        class="progress-bar progress-bar-striped"
         role="progressbar" aria-valuemin="0"
-        :style="progressValueWidth" :aria-valuenow="progressValueReturned"
-        aria-valuemax="100">Fulfillment {{progressValueReturned}}%</div>
+        :style="progressValueWidth" :aria-valuenow="progressValue[currentShelf]"
+        aria-valuemax="100">Fulfillment {{progressValue[currentShelf]}}%</div>
       </div>
 
       <button v-if="showButton"
@@ -92,26 +93,26 @@ export default {
       showButton: false,
       classBtnSave: 'btn-warning',
       progressValue: [],
+      progressValueWidth: null,
     };
+  },
+  created() {
+    // init progress values when loading shelves
+    this.progressValue[this.currentShelf] = this.stats[this.currentShelf].positionRate;
+    this.progressValueWidth = 'width:'.concat(this.progressValue[this.currentShelf]).concat('%');
   },
   computed: {
     currentShelf() {
       return this.tabIndex + 1;
     },
-    progressValueReturned: {
-      get() {
-        return (this.progressValue[this.currentShelf] === undefined)
-          ? this.stats[this.currentShelf].positionRate : this.progressValue[this.currentShelf];
-      },
-      set(newValue) {
-        this.progressValue[this.currentShelf] = newValue;
-      },
-    },
-    progressValueWidth() {
+  },
+  watch: {
+    tabIndex() {
+      // update progress values when switching shelves
       if (this.progressValue[this.currentShelf] === undefined) {
-        return 'width:'.concat(this.stats[this.currentShelf].positionRate).concat('%');
+        this.progressValue[this.currentShelf] = this.stats[this.currentShelf].positionRate;
       }
-      return 'width:'.concat(this.progressValue[this.currentShelf]).concat('%');
+      this.progressValueWidth = 'width:'.concat(this.progressValue[this.currentShelf]).concat('%');
     },
   },
   components: {
@@ -119,9 +120,9 @@ export default {
   },
   methods: {
     checkMove(e) {
+      // console.log('currentShelf', this.currentShelf);
       // window.console.log('Future index: '.concat(e.draggedContext.futureIndex));
       console.log(JSON.stringify(e.draggedContext));
-      console.log('progressValueWidth', this.progressValueWidth);
     },
     displayButtonSave() {
       this.showButton = true;
@@ -158,22 +159,9 @@ export default {
     updateProgressBar(result) {
       // console.log('maxColsShelf', this.maxColsShelf);
       const fulfillement = result.data[result.data.length - 1].fulfillment;
-      this.progressValue[this.currentShelf] = fulfillement / this.maxColsShelf;
-      console.log('progressValue', JSON.stringify(this.progressValue));
-
-      // adjust progress rate with statics element positions
-      /* let staticsRange = 0;
-      for (let i = 0; i < this.elements[this.currentShelf].length; i += 1) {
-        if (this.elements[this.currentShelf][i][1].item_type === 'static') {
-          staticsRange += this.elements[this.currentShelf][i][1].range;
-        }
-      }
-      const staticsElementRate = Math.round((staticsRange / this.maxColsShelf) * 100);
-      console.log('staticsElementRate', staticsElementRate);
-      // this.progressValue += staticsElementRate; */
-
-      this.progressValueReturned = Math.round(this.progressValue[this.currentShelf] * 100);
-      console.log('progressValueReturned', this.progressValueReturned);
+      // update progress values with new data
+      this.progressValue[this.currentShelf] = Math.round((fulfillement / this.maxColsShelf) * 100);
+      this.progressValueWidth = 'width:'.concat(this.progressValue[this.currentShelf]).concat('%');
     },
   },
 };
