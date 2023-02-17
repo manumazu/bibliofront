@@ -1,5 +1,5 @@
-# bibliocli
-A Vue JS web client for biblio(bus) API
+# bibliofront
+A Vue JS web front for biblio(bus) API
 
 ## Project setup
 ```
